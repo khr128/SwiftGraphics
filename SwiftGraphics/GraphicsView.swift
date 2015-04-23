@@ -11,8 +11,8 @@ import UIKit
 class GraphicsView: UIView {
   var points = [CGPoint]()
   var velocities = [CGPoint]()
-  let maxSpeed = 10 as CGFloat;
-  var pointCount = 10;
+  let maxSpeed = 100.0 as CGFloat;
+  var pointCount = 11;
 
   func randomPointInRect(rect: CGRect) -> CGPoint {
     return CGPointMake(
@@ -22,8 +22,8 @@ class GraphicsView: UIView {
 
   func randomVelocity() -> CGPoint {
     return CGPointMake(
-      CGFloat(rand())*maxSpeed/CGFloat(RAND_MAX),
-      CGFloat(rand())*maxSpeed/CGFloat(RAND_MAX))
+      -maxSpeed + CGFloat(rand())*2.0*maxSpeed/CGFloat(RAND_MAX),
+      -maxSpeed + CGFloat(rand())*2.0*maxSpeed/CGFloat(RAND_MAX))
   }
 
   func seedRandWithCurrentTime() {
@@ -40,11 +40,39 @@ class GraphicsView: UIView {
     }
   }
 
+  func movePoints(deltaT: CGFloat) {
+    for i in 0..<pointCount {
+      var p = points[i]
+      var v = velocities[i];
+      p.x += deltaT * v.x
+      p.y += deltaT * v.y
+
+      if (p.x < frame.origin.x || p.x > frame.origin.x + frame.width) {
+        v.x = -v.x
+        velocities[i] = v
+      } else if (p.y < frame.origin.y || p.y > frame.origin.y + frame.height) {
+        v.y = -v.y
+        velocities[i] = v
+      }
+
+      points[i] = p
+    }
+    setNeedsDisplay()
+  }
+
   override func drawRect(rect: CGRect) {
     var context = UIGraphicsGetCurrentContext()
     CGContextSetStrokeColorWithColor(context, UIColor.redColor().CGColor)
-    CGContextAddLines(context, points, pointCount)
-    CGContextClosePath(context)
-    CGContextStrokePath(context)
+//    CGContextAddLines(context, points, pointCount)
+//    CGContextClosePath(context)
+//    CGContextStrokePath(context)
+
+    var bezierPath = UIBezierPath()
+    bezierPath.moveToPoint(points.first!)
+   for var i=0; i < pointCount-2; i += 2 {
+     bezierPath.addQuadCurveToPoint(points[i+2], controlPoint:points[i+1])
+    }
+    bezierPath.addQuadCurveToPoint(points[0], controlPoint:points[pointCount-2])
+    bezierPath.stroke()
   }
 }

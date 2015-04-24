@@ -12,7 +12,7 @@ class GraphicsView: UIView {
   var points = [CGPoint]()
   var velocities = [CGPoint]()
   let maxSpeed = 100.0 as CGFloat;
-  var pointCount = 11;
+  var pointCount = 1 + 1*3;
 
   func randomPointInRect(rect: CGRect) -> CGPoint {
     return CGPointMake(
@@ -47,10 +47,10 @@ class GraphicsView: UIView {
       p.x += deltaT * v.x
       p.y += deltaT * v.y
 
-      if (p.x < frame.origin.x || p.x > frame.origin.x + frame.width) {
+      if p.x < frame.origin.x || p.x > frame.origin.x + frame.width {
         v.x = -v.x
         velocities[i] = v
-      } else if (p.y < frame.origin.y || p.y > frame.origin.y + frame.height) {
+      } else if p.y < frame.origin.y || p.y > frame.origin.y + frame.height {
         v.y = -v.y
         velocities[i] = v
       }
@@ -69,10 +69,16 @@ class GraphicsView: UIView {
 
     var bezierPath = UIBezierPath()
     bezierPath.moveToPoint(points.first!)
-   for var i=0; i < pointCount-2; i += 2 {
-     bezierPath.addQuadCurveToPoint(points[i+2], controlPoint:points[i+1])
+
+//    for var i=0; i < pointCount-2; i += 2 {
+//      bezierPath.addQuadCurveToPoint(points[i+2], controlPoint:points[i+1])
+//    }
+//    bezierPath.addQuadCurveToPoint(points[0], controlPoint:points[pointCount-2])
+
+    for var i=0; i < pointCount-3; i += 3 {
+      bezierPath.addCurveToPoint(points[i+3], controlPoint1:points[i+1], controlPoint2:points[i+2])
     }
-    bezierPath.addQuadCurveToPoint(points[0], controlPoint:points[pointCount-2])
+    bezierPath.addCurveToPoint(points[0], controlPoint1:points[pointCount-2], controlPoint2:points[pointCount-1])
     bezierPath.stroke()
   }
 }
